@@ -25,6 +25,7 @@ class View(ft.UserControl):
 
         self._ddAnno1 = ft.Dropdown(label="Da", hint_text="Anno")
         self._ddAnno2 = ft.Dropdown(label="A", hint_text="Anno")
+        self._controller.fill_dd_anni()
         self._btnCreaGrafo = ft.ElevatedButton(text="Crea Grafo", on_click=self._controller.handleCreaGrafo)
 
         cont1 = ft.Container(self._ddAnno1, width=250)
@@ -33,7 +34,8 @@ class View(ft.UserControl):
                       vertical_alignment=ft.CrossAxisAlignment.END)
 
         self._btnstampa = ft.ElevatedButton(text="Stampa Dettagli",
-                                           on_click=self._controller.handleDettagli)
+                                           on_click=self._controller.handleDettagli,
+                                            disabled=True)
         row2 = ft.Row([ft.Container(self._btnstampa, width=250)
                        ], alignment=ft.MainAxisAlignment.CENTER)
 
