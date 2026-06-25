@@ -67,6 +67,7 @@ class Controller:
             return
 
         lista, valore, minimo, massimo = self._model.cerca_ottimo(num)
+        self._model.getListaCostruttoriOttima(num)
 
         self._view.txt_result.controls.append(ft.Text(f"Trovata lista con valore {valore}", color="green"))
         for l in lista:

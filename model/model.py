@@ -54,7 +54,7 @@ class Model:
         self.lista = []
         self.valore = 10000000000
 
-        self._ricorsione([], num, list(nx.connected_components(self._grafo)))
+        self._ricorsione1([], num, list(nx.connected_components(self._grafo)))
 
 
         ord = sorted(self.lista, key=lambda x:x.oldest_driver_dob)
@@ -65,7 +65,7 @@ class Model:
             return self.lista, self.valore, ord, ord
 
 
-    def _ricorsione(self, parziale, num, componenti):
+    def _ricorsione1(self, parziale, num, componenti):
         # caso terminale
         if len(parziale) == num:
             i = self.calcola(parziale)
@@ -79,7 +79,7 @@ class Model:
                     parziale.append(n)
                     if self.controlla_data(parziale):
                         componenti.remove(c)
-                        self._ricorsione(parziale, num, componenti)
+                        self._ricorsione1(parziale, num, componenti)
                         componenti.append(c)
                     parziale.pop()
 
@@ -95,5 +95,50 @@ class Model:
         minimo = min([c.oldest_driver_dob for c in parziale])
         massimo = max([c.oldest_driver_dob for c in parziale])
         return (massimo - minimo).total_seconds() / 86400
+
+    def getListaCostruttoriOttima(self, k):
+        self._optListaCostruttori = []
+        self._optScore = 365 * 100  # 100 years in days
+
+
+        components = list(nx.connected_components(self._grafo))
+
+
+
+        parziale = []
+        self._ricorsione(components, k, parziale, 0)
+        print(self._optListaCostruttori, self._optScore)
+
+    def _ricorsione(self, componenti, k, parziale, index_componente):
+        # Base case: found k constructors
+        if len(parziale) == k:
+            # Check if all constructors have oldest_driver_dob
+            dobs = [c.oldest_driver_dob for c in parziale if c.oldest_driver_dob is not None]
+            if len(dobs) != k:
+                return  # Skip if some constructors don't have data
+
+            diff_attuale = (max(dobs) - min(dobs)).days
+
+            if diff_attuale < self._optScore:
+                self._optScore = diff_attuale
+                self._optListaCostruttori = copy.deepcopy(parziale)
+            return
+
+        # Termination conditions
+        if index_componente >= len(componenti):
+            return
+        if (len(componenti) - index_componente) < (k - len(parziale)):
+            return
+
+        # Option 1: Skip this component
+        self._ricorsione(componenti, k, parziale, index_componente + 1)
+
+        # Option 2: Choose one constructor from this component
+        componente_corrente = componenti[index_componente]
+        for costruttore in componente_corrente:
+            if costruttore.oldest_driver_dob is not None:
+                parziale.append(costruttore)
+                self._ricorsione(componenti, k, parziale, index_componente + 1)
+                parziale.pop()
 
 
